@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using LiqPay.Models;
+using LiqPay.Service;
+using Newtonsoft.Json;
 
 namespace LiqPay.Controllers
 {
@@ -20,12 +22,40 @@ namespace LiqPay.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View(LiqpayService.GetLiqPayModel(Guid.NewGuid().ToString()));
         }
 
-        public IActionResult Privacy()
+        /// <summary>
+        /// On this page Liqpay send payment result. 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult RedirectToPayment()
         {
-            return View();
+            // Convert Liqpay response to Dictionary<string, string>
+            var responseDictionary = Request.Form.Keys.ToDictionary(key => Request.Form[key]);
+
+            // Decode parameter Liqpay response data and converting to dictionary 
+            var responseData = Convert.FromBase64String(responseDictionary["data"]);
+            var decodedString = Encoding.UTF8.GetString(responseData);
+            var jsonResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(decodedString);
+
+            // Get signature for check
+            var mySignature = LiqpayService.GetSignature(responseDictionary["data"]);
+
+            // Check is equal signatures
+            if (mySignature != responseDictionary["signature"])
+            {
+                return View("Error");
+            }
+
+            if (jsonResponse["status"] == "success" || jsonResponse["status"] == "sandbox")
+            {
+                // Here you can update order status. Order Id you can find here: jsonResponse["order_id"]
+
+                return View("_Success");
+            }
+            return View("Error");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

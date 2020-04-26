@@ -61,7 +61,7 @@ namespace LiqPay.Service
         /// </summary>
         /// <param name="data">Json string with parameters for Liqpay</param>
         /// <returns></returns>
-        private static string GetSignature(string data)
+        public static string GetSignature(string data)
         {
             return Convert.ToBase64String(SHA1.Create()
                 .ComputeHash(Encoding.UTF8.GetBytes(_privateKey + data + _privateKey)));
