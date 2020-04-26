@@ -31,13 +31,13 @@ namespace LiqPay.Service
                 PublicKey = _publicKey,
                 Version = 3,
                 Action = "pay",
-                Amount = 5,
+                Amount = 1,
                 Currency = "UAH",
                 Description = "Test order payment",
                 OrderId = orderId,
                 Sandbox = 1,
 
-                ResultUrl = "https://localhost:1274/Home/Redirect",
+                ResultUrl = "https://localhost:44311/Home/Redirect",
 
                 ProductCategory = "Food",
                 ProductName = "Pizza BBQ",
